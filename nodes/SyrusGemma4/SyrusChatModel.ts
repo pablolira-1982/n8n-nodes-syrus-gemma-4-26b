@@ -1,11 +1,24 @@
-import { BaseChatModel, type BaseChatModelParams } from '@langchain/core/language_models/chat_models';
+import {
+	BaseChatModel,
+	type BaseChatModelCallOptions,
+	type BaseChatModelParams,
+	type BindToolsInput,
+} from '@langchain/core/language_models/chat_models';
 import type { BaseMessage } from '@langchain/core/messages';
 import type { ChatResult } from '@langchain/core/outputs';
 import type { CallbackManagerForLLMRun } from '@langchain/core/callbacks/manager';
+import type { Runnable } from '@langchain/core/runnables';
 import type { IExecuteFunctions, IHttpRequestMethods } from 'n8n-workflow';
 import { mapBaseMessagesToSyrusContents } from './messageMapper';
 import { mapSyrusResponseToChatResult } from './responseMapper';
-import type { SyrusGenerateRequest, SyrusGenerateResponse, SyrusGenerationConfig } from './transport';
+import type {
+	SyrusGenerateRequest,
+	SyrusGenerateResponse,
+	SyrusGenerationConfig,
+	SyrusTool,
+} from './transport';
+
+type SyrusCallOptions = BaseChatModelCallOptions & { syrusTools?: SyrusTool[] };
 
 export interface SyrusChatModelFields extends BaseChatModelParams {
 	apiKey: string;
@@ -47,9 +60,25 @@ export class SyrusChatModel extends BaseChatModel {
 		return 'syrus_gemma_chat_model';
 	}
 
+	bindTools(tools: BindToolsInput[]): Runnable {
+		const syrusTools: SyrusTool[] = [{
+			functionDeclarations: tools.map((tool) => {
+				const value = tool as Record<string, unknown>;
+				const definition = (value.function ?? value) as Record<string, unknown>;
+				return {
+					name: String(definition.name ?? value.name),
+					description: typeof definition.description === 'string' ? definition.description : undefined,
+					parameters: (definition.parameters ?? value.schema) as Record<string, unknown> | undefined,
+				};
+			}),
+		}];
+
+		return this.bind({ syrusTools } as never);
+	}
+
 	async _generate(
 		messages: BaseMessage[],
-		_options: this['ParsedCallOptions'],
+		_options: SyrusCallOptions,
 		_runManager?: CallbackManagerForLLMRun,
 	): Promise<ChatResult> {
 		const contents = mapBaseMessagesToSyrusContents(messages);
@@ -74,6 +103,7 @@ export class SyrusChatModel extends BaseChatModel {
 		const requestBody: SyrusGenerateRequest = {
 			contents,
 			generationConfig,
+			...(_options.syrusTools ? { tools: _options.syrusTools } : {}),
 		};
 
 		let responseData: SyrusGenerateResponse;

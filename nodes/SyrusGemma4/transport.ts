@@ -1,5 +1,13 @@
 export interface SyrusPart {
-	text: string;
+	text?: string;
+	functionCall?: {
+		name: string;
+		args?: Record<string, unknown>;
+	};
+	functionResponse?: {
+		name: string;
+		response: unknown;
+	};
 }
 
 export interface SyrusContent {
@@ -15,15 +23,26 @@ export interface SyrusGenerationConfig {
 	stopSequences?: string[];
 }
 
+export interface SyrusFunctionDeclaration {
+	name: string;
+	description?: string;
+	parameters?: Record<string, unknown>;
+}
+
+export interface SyrusTool {
+	functionDeclarations: SyrusFunctionDeclaration[];
+}
+
 export interface SyrusGenerateRequest {
 	contents: SyrusContent[];
 	generationConfig?: SyrusGenerationConfig;
+	tools?: SyrusTool[];
 }
 
 export interface SyrusCandidate {
 	content?: {
 		role?: string;
-		parts?: Array<{ text?: string }>;
+		parts?: SyrusPart[];
 	};
 	finishReason?: string;
 	index?: number;

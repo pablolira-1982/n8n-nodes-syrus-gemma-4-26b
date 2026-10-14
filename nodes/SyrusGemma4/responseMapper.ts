@@ -23,10 +23,24 @@ export function mapSyrusResponseToChatResult(response: SyrusGenerateResponse): C
 		outputText = response.text;
 	}
 
+	const toolCalls = response.candidates?.[0]?.content?.parts
+		?.filter((part) => part.functionCall)
+		.map((part, index) => ({
+			name: part.functionCall!.name,
+			args: part.functionCall!.args ?? {},
+			id: `${part.functionCall!.name}-${index}`,
+			type: 'tool_call' as const,
+		}));
+
+	const message = new AIMessage({
+		content: outputText,
+		...(toolCalls && toolCalls.length > 0 ? { tool_calls: toolCalls } : {}),
+	});
+
 	const generations: ChatGeneration[] = [
 		{
 			text: outputText,
-			message: new AIMessage(outputText),
+			message,
 			generationInfo: {
 				finishReason: response.candidates?.[0]?.finishReason,
 				usage: response.usageMetadata,

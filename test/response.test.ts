@@ -47,4 +47,23 @@ describe('responseMapper', () => {
 			'Syrus API Error (401): Invalid API Key provided'
 		);
 	});
+
+	it('should expose Gemini function calls as LangChain tool calls', () => {
+		const result = mapSyrusResponseToChatResult({
+			candidates: [{
+				content: {
+					role: 'model',
+					parts: [{ functionCall: { name: 'lookup', args: { city: 'Lisbon' } } }],
+				},
+			}],
+		});
+
+		expect(result.generations[0].message).toMatchObject({
+			tool_calls: [{
+				name: 'lookup',
+				args: { city: 'Lisbon' },
+				id: 'lookup-0',
+			}],
+		});
+	});
 });

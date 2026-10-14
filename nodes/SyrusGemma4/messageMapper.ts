@@ -32,9 +32,25 @@ export function mapBaseMessagesToSyrusContents(messages: BaseMessage[]): SyrusCo
 				parts: [{ text }],
 			});
 		} else if (type === 'ai') {
+			const toolCalls = (message as BaseMessage & {
+				tool_calls?: Array<{ name: string; args?: Record<string, unknown> }>;
+			}).tool_calls;
 			contents.push({
 				role: 'model',
-				parts: [{ text: textContent }],
+				parts: toolCalls?.length
+					? toolCalls.map((call) => ({ functionCall: { name: call.name, args: call.args ?? {} } }))
+					: [{ text: textContent }],
+			});
+		} else if (type === 'tool') {
+			const toolMessage = message as BaseMessage & { name?: string; tool_call_id?: string };
+			contents.push({
+				role: 'user',
+				parts: [{
+					functionResponse: {
+						name: toolMessage.name || toolMessage.tool_call_id || 'tool',
+						response: textContent,
+					},
+				}],
 			});
 		} else {
 			// Generic fallback (function/tool/chat)

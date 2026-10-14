@@ -41,7 +41,7 @@
 | System Prompts | Supported | Formatted as instruction context |
 | Stop Sequences | Supported | Passed as JSON string array to `generationConfig` |
 | Streaming | Not Supported / Unverified | Syrus batch completion mode |
-| Function / Tool Calling | Unverified | Not advertised in v1 without upstream API contract |
+| Function / Tool Calling | Implemented in adapter; requires Syrus endpoint support | Sends Gemini-style `functionDeclarations` and maps `functionCall`/`functionResponse`; verify against the deployed Syrus API |
 | n8n Self-Hosted | Tested | Node.js >= 20.x, n8n >= 1.0.0 |
 | n8n Cloud | Unverified | Community node sandbox restrictions may apply |
 
@@ -137,6 +137,18 @@ npm run test
 # Dry-run package contents for npm
 npm pack --dry-run
 ```
+
+### Tool-calling compatibility
+
+The adapter exposes LangChain's `bindTools()` contract required by n8n's Tools Agent. It serializes tools using Gemini-style `tools[].functionDeclarations[]` and maps returned `functionCall` parts to LangChain tool calls. The deployed Syrus `/generate` service must accept this contract; a successful package build does not prove upstream tool-calling support. Test one real tool invocation before production use.
+
+## Changelog
+
+### 1.0.1
+
+- Implemented the `bindTools()` Chat Model contract required by n8n Tools Agent.
+- Added Gemini-style tool declaration, function-call response, and tool-result mapping.
+- Added unit coverage for tool-calling message and response conversion.
 
 ---
 

@@ -1,5 +1,5 @@
 import { describe, it, expect } from 'vitest';
-import { HumanMessage, AIMessage, SystemMessage } from '@langchain/core/messages';
+import { HumanMessage, AIMessage, SystemMessage, ToolMessage } from '@langchain/core/messages';
 import { mapBaseMessagesToSyrusContents } from '../nodes/SyrusGemma4/messageMapper';
 
 describe('messageMapper', () => {
@@ -52,5 +52,16 @@ describe('messageMapper', () => {
 		expect(contents[0]).toEqual({ role: 'user', parts: [{ text: 'Question 1' }] });
 		expect(contents[1]).toEqual({ role: 'model', parts: [{ text: 'Answer 1' }] });
 		expect(contents[2]).toEqual({ role: 'user', parts: [{ text: 'Question 2' }] });
+	});
+
+	it('should map tool results to a Gemini functionResponse part', () => {
+		const contents = mapBaseMessagesToSyrusContents([
+			new ToolMessage({ content: '{"ok":true}', tool_call_id: 'lookup-0', name: 'lookup' }),
+		]);
+
+		expect(contents).toEqual([{
+			role: 'user',
+			parts: [{ functionResponse: { name: 'lookup', response: '{"ok":true}' } }],
+		}]);
 	});
 });
