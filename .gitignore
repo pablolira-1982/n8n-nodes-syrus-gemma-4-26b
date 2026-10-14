@@ -1,0 +1,11 @@
+node_modules/
+dist/
+.DS_Store
+*.log
+.env
+.env.*
+temp_orig.png
+syrus_transparent.png
+coverage/
+.vscode/
+.idea/

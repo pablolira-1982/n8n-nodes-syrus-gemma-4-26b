@@ -1,0 +1,66 @@
+{
+  "name": "n8n-nodes-syrus-gemma-4-26b",
+  "version": "1.0.0",
+  "description": "n8n community chat model sub-node for Syrus Gemma 4 26B, connecting directly into n8n AI Agent workflows.",
+  "keywords": [
+    "n8n-community-node-package",
+    "n8n-nodes",
+    "n8n",
+    "ai",
+    "langchain",
+    "gemma",
+    "syrus",
+    "chat-model",
+    "llm"
+  ],
+  "license": "MIT",
+  "homepage": "https://github.com/pablolira-1982/n8n-nodes-syrus-gemma-4-26b",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/pablolira-1982/n8n-nodes-syrus-gemma-4-26b.git"
+  },
+  "bugs": {
+    "url": "https://github.com/pablolira-1982/n8n-nodes-syrus-gemma-4-26b/issues"
+  },
+  "main": "index.js",
+  "scripts": {
+    "build": "tsc && gulp copy:icons",
+    "dev": "tsc --watch",
+    "lint": "eslint . --ext .ts",
+    "format": "prettier --write \"**/*.ts\"",
+    "test": "vitest run",
+    "prepublishOnly": "npm run build && npm run test"
+  },
+  "files": [
+    "dist",
+    "assets",
+    "README.md",
+    "LICENSE"
+  ],
+  "n8n": {
+    "n8nNodesApiVersion": 1,
+    "credentials": [
+      "dist/credentials/SyrusGemmaApi.credentials.js"
+    ],
+    "nodes": [
+      "dist/nodes/SyrusGemma4/SyrusGemma4.node.js"
+    ]
+  },
+  "devDependencies": {
+    "@types/node": "^22.13.0",
+    "@typescript-eslint/eslint-plugin": "^8.24.0",
+    "@typescript-eslint/parser": "^8.24.0",
+    "eslint": "^9.20.0",
+    "gulp": "^5.0.0",
+    "n8n-workflow": "^1.82.0",
+    "prettier": "^3.5.0",
+    "typescript": "^5.7.3",
+    "vitest": "^3.0.5"
+  },
+  "dependencies": {
+    "@langchain/core": "^0.3.40"
+  },
+  "peerDependencies": {
+    "n8n-workflow": "*"
+  }
+}

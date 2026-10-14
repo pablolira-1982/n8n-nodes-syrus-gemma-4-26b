@@ -1,0 +1,24 @@
+# Source files
+src/
+nodes/**/*.ts
+credentials/**/*.ts
+test/
+examples/
+.github/
+
+# Development files
+tsconfig.json
+eslint.config.mjs
+.eslintrc*
+vitest.config.ts
+*.log
+.env*
+temp_orig.png
+syrus_transparent.png
+syrus.svg
+syrus_logo.svg
+
+# Keep docs and license
+!README.md
+!LICENSE
+!dist/
